@@ -20,7 +20,6 @@ public class DataProcessingServiceImpl implements DataProcessingService {
     public ApiResponse processData(ApiRequest request) {
         List<String> data = request.getData();
 
-        List<String> numbers = new ArrayList<>();
         List<String> alphabets = new ArrayList<>();
         List<String> evenNumbers = new ArrayList<>();
         List<String> oddNumbers = new ArrayList<>();
@@ -29,13 +28,12 @@ public class DataProcessingServiceImpl implements DataProcessingService {
         long sum = 0;
 
         for (String item : data) {
-            if (item == null || item.isEmpty()) {
+            if (item == null) {
                 continue;
             }
 
             if (isNumeric(item)) {
                 // Classify as number
-                numbers.add(item);
                 long num = Long.parseLong(item);
                 sum += num;
 
@@ -48,26 +46,16 @@ public class DataProcessingServiceImpl implements DataProcessingService {
                 // Classify as alphabet – store in uppercase
                 alphabets.add(item.toUpperCase());
             } else {
-                // Mixed or special characters
+                // Mixed or special characters (including empty strings)
                 specialCharacters.add(item);
             }
 
-            // Extract ALL alphabetical characters from every element (for concat & highest)
+            // Extract ALL alphabetical characters from every element (for concat)
             for (char c : item.toCharArray()) {
                 if (Character.isLetter(c)) {
                     allAlphaChars.add(c);
                 }
             }
-        }
-
-        // ── Highest lowercase alphabet ──
-        List<String> highestLowercaseAlphabet = new ArrayList<>();
-        if (!allAlphaChars.isEmpty()) {
-            char highest = allAlphaChars.stream()
-                    .map(Character::toLowerCase)
-                    .max(Character::compareTo)
-                    .orElse('a');
-            highestLowercaseAlphabet.add(String.valueOf(highest));
         }
 
         // ── Alternating-case concatenation (reversed) ──
@@ -85,18 +73,16 @@ public class DataProcessingServiceImpl implements DataProcessingService {
         }
 
         return ApiResponse.builder()
-                .success(true)
+                .status(true)
                 .userId(USER_ID)
                 .email(EMAIL)
                 .rollNumber(ROLL_NUMBER)
-                .numbers(numbers)
-                .alphabets(alphabets)
-                .highestLowercaseAlphabet(highestLowercaseAlphabet)
-                .evenNumbers(evenNumbers)
                 .oddNumbers(oddNumbers)
+                .evenNumbers(evenNumbers)
+                .alphabets(alphabets)
                 .specialCharacters(specialCharacters)
-                .sumOfNumbers(sum)
-                .alternatingCaseConcat(concat.toString())
+                .sum(String.valueOf(sum))
+                .concatAlphabets(concat.toString())
                 .build();
     }
 

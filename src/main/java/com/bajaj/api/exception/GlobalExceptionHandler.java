@@ -44,14 +44,14 @@ public class GlobalExceptionHandler {
 
     private ApiResponse buildErrorResponse() {
         return ApiResponse.builder()
-                .success(false)
+                .status(false)
                 .userId(USER_ID)
-                .numbers(Collections.emptyList())
-                .alphabets(Collections.emptyList())
-                .highestLowercaseAlphabet(Collections.emptyList())
-                .evenNumbers(Collections.emptyList())
                 .oddNumbers(Collections.emptyList())
+                .evenNumbers(Collections.emptyList())
+                .alphabets(Collections.emptyList())
                 .specialCharacters(Collections.emptyList())
+                .sum("0")
+                .concatAlphabets("")
                 .build();
     }
 }

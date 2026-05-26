@@ -1,7 +1,6 @@
 package com.bajaj.api.controller;
 
 import com.bajaj.api.dto.ApiRequest;
-import com.bajaj.api.service.DataProcessingService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -28,6 +27,29 @@ class ApiControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
+    // ── POST /bfhl ──
+
+    @Test
+    @DisplayName("POST /bfhl with valid data returns 200 and correct JSON structure")
+    void postBfhl_ValidData_Returns200() throws Exception {
+        ApiRequest request = new ApiRequest(Arrays.asList("A", "1", "334", "4", "R"));
+
+        mockMvc.perform(post("/bfhl")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value(true))
+                .andExpect(jsonPath("$.user_id").value("neha_gupta_22032006"))
+                .andExpect(jsonPath("$.email").value("nehagupta230802@acropolis.in"))
+                .andExpect(jsonPath("$.roll_number").value("0827IT231091"))
+                .andExpect(jsonPath("$.alphabets").isArray())
+                .andExpect(jsonPath("$.even_numbers").isArray())
+                .andExpect(jsonPath("$.odd_numbers").isArray())
+                .andExpect(jsonPath("$.special_characters").isArray())
+                .andExpect(jsonPath("$.sum").value("339"))
+                .andExpect(jsonPath("$.concat_alphabets").value("Ra"));
+    }
+
     // ── POST /api ──
 
     @Test
@@ -39,54 +61,53 @@ class ApiControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.is_success").value(true))
-                .andExpect(jsonPath("$.user_id").value("neha_gupta_22032006"))
-                .andExpect(jsonPath("$.email").value("nehagupta230802@acropolis.in"))
-                .andExpect(jsonPath("$.roll_number").value("0827IT231091"))
-                .andExpect(jsonPath("$.numbers").isArray())
-                .andExpect(jsonPath("$.alphabets").isArray())
-                .andExpect(jsonPath("$.even_numbers").isArray())
-                .andExpect(jsonPath("$.odd_numbers").isArray())
-                .andExpect(jsonPath("$.special_characters").isArray())
-                .andExpect(jsonPath("$.sum_of_numbers").value(339))
-                .andExpect(jsonPath("$.highest_lowercase_alphabet[0]").value("r"));
+                .andExpect(jsonPath("$.status").value(true))
+                .andExpect(jsonPath("$.sum").value("339"));
     }
 
     @Test
-    @DisplayName("POST /api with empty data array returns 200 with empty lists")
-    void postApi_EmptyArray_Returns200() throws Exception {
+    @DisplayName("POST /bfhl with empty data array returns 200 with empty lists")
+    void postBfhl_EmptyArray_Returns200() throws Exception {
         ApiRequest request = new ApiRequest(Collections.emptyList());
 
-        mockMvc.perform(post("/api")
+        mockMvc.perform(post("/bfhl")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.is_success").value(true))
-                .andExpect(jsonPath("$.numbers").isEmpty())
-                .andExpect(jsonPath("$.sum_of_numbers").value(0));
+                .andExpect(jsonPath("$.status").value(true))
+                .andExpect(jsonPath("$.even_numbers").isEmpty())
+                .andExpect(jsonPath("$.sum").value("0"));
     }
 
     @Test
-    @DisplayName("POST /api with missing data field returns 400")
-    void postApi_MissingData_Returns400() throws Exception {
-        mockMvc.perform(post("/api")
+    @DisplayName("POST /bfhl with missing data field returns 400")
+    void postBfhl_MissingData_Returns400() throws Exception {
+        mockMvc.perform(post("/bfhl")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{}"))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.is_success").value(false));
+                .andExpect(jsonPath("$.status").value(false));
     }
 
     @Test
-    @DisplayName("POST /api with malformed JSON returns 400")
-    void postApi_MalformedJson_Returns400() throws Exception {
-        mockMvc.perform(post("/api")
+    @DisplayName("POST /bfhl with malformed JSON returns 400")
+    void postBfhl_MalformedJson_Returns400() throws Exception {
+        mockMvc.perform(post("/bfhl")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{invalid}"))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.is_success").value(false));
+                .andExpect(jsonPath("$.status").value(false));
     }
 
-    // ── GET /api ──
+    // ── GET /bfhl and GET /api ──
+
+    @Test
+    @DisplayName("GET /bfhl returns operation_code 1")
+    void getBfhl_ReturnsOperationCode() throws Exception {
+        mockMvc.perform(get("/bfhl"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.operation_code").value(1));
+    }
 
     @Test
     @DisplayName("GET /api returns operation_code 1")
@@ -94,5 +115,15 @@ class ApiControllerTest {
         mockMvc.perform(get("/api"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.operation_code").value(1));
+    }
+
+    // ── GET /health ──
+
+    @Test
+    @DisplayName("GET /health returns UP status")
+    void getHealth_ReturnsUp() throws Exception {
+        mockMvc.perform(get("/health"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("UP"));
     }
 }

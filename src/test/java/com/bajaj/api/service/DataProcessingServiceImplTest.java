@@ -9,7 +9,6 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -30,9 +29,8 @@ class DataProcessingServiceImplTest {
         ApiRequest request = new ApiRequest(Arrays.asList("A", "1", "334", "4", "R"));
         ApiResponse response = service.processData(request);
 
-        assertTrue(response.isSuccess());
+        assertTrue(response.isStatus());
         assertEquals("neha_gupta_22032006", response.getUserId());
-        assertEquals(Arrays.asList("1", "334", "4"), response.getNumbers());
         assertEquals(Arrays.asList("A", "R"), response.getAlphabets());
     }
 
@@ -52,16 +50,7 @@ class DataProcessingServiceImplTest {
         ApiRequest request = new ApiRequest(Arrays.asList("A", "1", "334", "4", "R"));
         ApiResponse response = service.processData(request);
 
-        assertEquals(339, response.getSumOfNumbers());
-    }
-
-    @Test
-    @DisplayName("Example A – highest lowercase alphabet")
-    void testExampleA_HighestAlphabet() {
-        ApiRequest request = new ApiRequest(Arrays.asList("A", "1", "334", "4", "R"));
-        ApiResponse response = service.processData(request);
-
-        assertEquals(Collections.singletonList("r"), response.getHighestLowercaseAlphabet());
+        assertEquals("339", response.getSum());
     }
 
     // ── Example B: Only alphabets ──
@@ -72,10 +61,11 @@ class DataProcessingServiceImplTest {
         ApiRequest request = new ApiRequest(Arrays.asList("A", "ABCD", "DOE"));
         ApiResponse response = service.processData(request);
 
-        assertTrue(response.isSuccess());
-        assertTrue(response.getNumbers().isEmpty());
+        assertTrue(response.isStatus());
+        assertTrue(response.getOddNumbers().isEmpty());
+        assertTrue(response.getEvenNumbers().isEmpty());
         assertEquals(Arrays.asList("A", "ABCD", "DOE"), response.getAlphabets());
-        assertEquals(0, response.getSumOfNumbers());
+        assertEquals("0", response.getSum());
     }
 
     // ── Example C: Only numbers ──
@@ -86,10 +76,9 @@ class DataProcessingServiceImplTest {
         ApiRequest request = new ApiRequest(Arrays.asList("1", "2", "3", "4", "5"));
         ApiResponse response = service.processData(request);
 
-        assertTrue(response.isSuccess());
-        assertEquals(Arrays.asList("1", "2", "3", "4", "5"), response.getNumbers());
+        assertTrue(response.isStatus());
         assertTrue(response.getAlphabets().isEmpty());
-        assertEquals(15, response.getSumOfNumbers());
+        assertEquals("15", response.getSum());
         assertEquals(Arrays.asList("2", "4"), response.getEvenNumbers());
         assertEquals(Arrays.asList("1", "3", "5"), response.getOddNumbers());
     }
@@ -97,14 +86,14 @@ class DataProcessingServiceImplTest {
     // ── Special characters ──
 
     @Test
-    @DisplayName("Mixed elements with special characters")
+    @DisplayName("Mixed elements with special characters and empty strings")
     void testSpecialCharacters() {
-        ApiRequest request = new ApiRequest(Arrays.asList("@", "1", "A", "7fg", "#"));
+        ApiRequest request = new ApiRequest(Arrays.asList("@", "1", "A", "7fg", "#", ""));
         ApiResponse response = service.processData(request);
 
-        assertEquals(Arrays.asList("1"), response.getNumbers());
+        assertEquals(Arrays.asList("1"), response.getOddNumbers());
         assertEquals(Arrays.asList("A"), response.getAlphabets());
-        assertEquals(Arrays.asList("@", "7fg", "#"), response.getSpecialCharacters());
+        assertEquals(Arrays.asList("@", "7fg", "#", ""), response.getSpecialCharacters());
     }
 
     // ── Edge case: Empty array ──
@@ -115,13 +104,12 @@ class DataProcessingServiceImplTest {
         ApiRequest request = new ApiRequest(Collections.emptyList());
         ApiResponse response = service.processData(request);
 
-        assertTrue(response.isSuccess());
-        assertTrue(response.getNumbers().isEmpty());
+        assertTrue(response.isStatus());
         assertTrue(response.getAlphabets().isEmpty());
         assertTrue(response.getEvenNumbers().isEmpty());
         assertTrue(response.getOddNumbers().isEmpty());
         assertTrue(response.getSpecialCharacters().isEmpty());
-        assertEquals(0, response.getSumOfNumbers());
+        assertEquals("0", response.getSum());
     }
 
     // ── Alternating case concatenation ──
@@ -133,7 +121,7 @@ class DataProcessingServiceImplTest {
         ApiRequest request = new ApiRequest(Arrays.asList("a", "b", "c"));
         ApiResponse response = service.processData(request);
 
-        assertEquals("CbA", response.getAlternatingCaseConcat());
+        assertEquals("CbA", response.getConcatAlphabets());
     }
 
     @Test
@@ -143,7 +131,7 @@ class DataProcessingServiceImplTest {
         ApiRequest request = new ApiRequest(Arrays.asList("A", "1", "7fg"));
         ApiResponse response = service.processData(request);
 
-        assertEquals("GfA", response.getAlternatingCaseConcat());
+        assertEquals("GfA", response.getConcatAlphabets());
     }
 
     // ── User info constants ──

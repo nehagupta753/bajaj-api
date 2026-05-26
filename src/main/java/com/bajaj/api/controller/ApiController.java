@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api")
 public class ApiController {
 
     private final DataProcessingService dataProcessingService;
@@ -20,19 +19,27 @@ public class ApiController {
     }
 
     /**
-     * POST /api – Accepts a JSON body with a "data" array and returns processed results.
+     * POST /bfhl and POST /api – Accepts a JSON body with a "data" array and returns processed results.
      */
-    @PostMapping
+    @PostMapping({"/bfhl", "/api"})
     public ResponseEntity<ApiResponse> processData(@Valid @RequestBody ApiRequest request) {
         ApiResponse response = dataProcessingService.processData(request);
         return ResponseEntity.ok(response);
     }
 
     /**
-     * GET /api – Returns a simple operation code (standard BFHL endpoint).
+     * GET /bfhl and GET /api – Returns a simple operation code.
      */
-    @GetMapping
+    @GetMapping({"/bfhl", "/api"})
     public ResponseEntity<Map<String, Integer>> getOperationCode() {
         return ResponseEntity.ok(Map.of("operation_code", 1));
+    }
+
+    /**
+     * GET /health – Returns health status.
+     */
+    @GetMapping("/health")
+    public ResponseEntity<Map<String, String>> getHealth() {
+        return ResponseEntity.ok(Map.of("status", "UP"));
     }
 }
